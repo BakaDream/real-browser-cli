@@ -232,7 +232,7 @@ func shouldTraceCommand(command string) bool {
 		return false
 	}
 	switch command {
-	case "doctor", "tab.list", "tab.active", "dialog.status":
+	case "doctor", "tab.list", "dialog.status":
 		return false
 	default:
 		return true

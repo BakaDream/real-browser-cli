@@ -27,6 +27,8 @@ func RegisterTabs(state *AppState, tabs []protocol.ExtTab, sender chan string, r
 			}
 		}
 	}
+	fallbackActiveHandle := ""
+	fallbackFirstHandle := ""
 	for _, tab := range tabs {
 		info := tab.IntoTabInfo()
 		if !containsString(*registeredIDs, info.ID) {
@@ -44,8 +46,11 @@ func RegisterTabs(state *AppState, tabs []protocol.ExtTab, sender chan string, r
 		if !info.Scriptable {
 			info.Status = "unsupported"
 		}
-		if info.Active || state.Driver.ActiveHandle == "" {
-			state.Driver.ActiveHandle = handle
+		if info.Active {
+			fallbackActiveHandle = handle
+		}
+		if fallbackFirstHandle == "" {
+			fallbackFirstHandle = handle
 		}
 		state.Driver.LatestSessionID = info.ID
 		if state.Driver.DefaultSessionID == "" {
@@ -55,6 +60,9 @@ func RegisterTabs(state *AppState, tabs []protocol.ExtTab, sender chan string, r
 			Info:   info,
 			Sender: sender,
 		}
+	}
+	if state.Driver.ActiveHandle == "" {
+		state.Driver.ActiveHandle = firstNonEmptyString(fallbackActiveHandle, fallbackFirstHandle)
 	}
 	if state.Driver.DefaultSessionID == "" {
 		state.Driver.DefaultSessionID = activeSessionLocked(state.Driver)
@@ -134,6 +142,7 @@ func ActiveTabs(state *AppState, waitReady bool) []protocol.TabInfo {
 		if !info.Scriptable {
 			info.Status = "unsupported"
 		}
+		info.Active = info.TabID != "" && info.TabID == state.Driver.ActiveHandle
 		for label, handle := range state.Driver.TabLabels {
 			if handle == info.TabID {
 				info.Label = label

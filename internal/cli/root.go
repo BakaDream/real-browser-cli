@@ -244,18 +244,14 @@ func pluginCmd() *cobra.Command {
 }
 
 func tabCmd() *cobra.Command {
-	cmd := &cobra.Command{Use: "tab", Short: "Manage browser tabs"}
+	cmd := &cobra.Command{Use: "tab", Short: "Manage browser tabs", Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
+	}}
 	cmd.AddCommand(&cobra.Command{Use: "list", Short: "List connected browser tabs", RunE: func(cmd *cobra.Command, args []string) error {
 		if err := ensureServer(); err != nil {
 			return err
 		}
 		return runRPC("tab.list", nil)
-	}})
-	cmd.AddCommand(&cobra.Command{Use: "active", Short: "Show the active browser tab", RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ensureServer(); err != nil {
-			return err
-		}
-		return runRPC("tab.active", nil)
 	}})
 	var label string
 	var background bool
@@ -272,7 +268,7 @@ func tabCmd() *cobra.Command {
 	newCmd.Flags().StringVar(&label, "label", "", "tab label")
 	newCmd.Flags().BoolVar(&background, "background", false, "open in background")
 	cmd.AddCommand(newCmd)
-	cmd.AddCommand(&cobra.Command{Use: "use <tab>", Short: "Switch to a browser tab", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	cmd.AddCommand(&cobra.Command{Use: "use <tab>", Short: "Set the default browser tab", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		if err := ensureServer(); err != nil {
 			return err
 		}
@@ -313,8 +309,8 @@ func openCmd() *cobra.Command {
 
 func backForwardCmd(name string) *cobra.Command {
 	short := map[string]string{
-		"back":    "Navigate back in the active tab",
-		"forward": "Navigate forward in the active tab",
+		"back":    "Navigate back in the default tab",
+		"forward": "Navigate forward in the default tab",
 	}[name]
 	return &cobra.Command{Use: name, Short: short, RunE: func(cmd *cobra.Command, args []string) error {
 		if err := ensureServer(); err != nil {
@@ -326,7 +322,7 @@ func backForwardCmd(name string) *cobra.Command {
 
 func reloadCmd() *cobra.Command {
 	var hard bool
-	cmd := &cobra.Command{Use: "reload", Short: "Reload the active tab", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "reload", Short: "Reload the default tab", RunE: func(cmd *cobra.Command, args []string) error {
 		if err := ensureServer(); err != nil {
 			return err
 		}
@@ -494,7 +490,7 @@ func evalCmd() *cobra.Command {
 	var stdin bool
 	var waitJS string
 	var waitTimeout, waitInterval float64
-	cmd := &cobra.Command{Use: "eval [js]", Short: "Run JavaScript in the active tab", Args: cobra.MaximumNArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "eval [js]", Short: "Run JavaScript in the default tab", Args: cobra.MaximumNArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		if err := ensureServer(); err != nil {
 			return err
 		}
@@ -893,10 +889,6 @@ func formatRPCDefault(command string, value any) (string, bool) {
 		if text, _ := m["snapshot"].(string); text != "" {
 			return line(text), true
 		}
-	case "tab.active":
-		if id, _ := m["tabId"].(string); id != "" {
-			return line(id), true
-		}
 	case "tab.list":
 		return formatTabList(m), true
 	case "doctor":
@@ -982,7 +974,7 @@ func formatTabList(m map[string]any) string {
 }
 
 func formatDoctor(m map[string]any) string {
-	return fmt.Sprintf("daemon: running\nplugin: %s\ntabs: %.0f\nactive tab: %s\n", connectedText(boolFromMap(m, "bridge")), numberFromMap(m, "tabsCount"), stringFromMap(m, "activeTab"))
+	return fmt.Sprintf("daemon: running\nplugin: %s\ntabs: %.0f\ndefault tab: %s\n", connectedText(boolFromMap(m, "bridge")), numberFromMap(m, "tabsCount"), stringFromMap(m, "activeTab"))
 }
 
 func formatList(name string, value any) string {

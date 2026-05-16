@@ -78,8 +78,6 @@ func dispatchRPC(state *AppState, req protocol.APIRequest) (any, error) {
 		return doctorData(state), nil
 	case "tab.list":
 		return map[string]any{"tabs": ActiveTabs(state, true), "activeTab": activeHandle(state)}, nil
-	case "tab.active":
-		return map[string]any{"tabId": activeHandle(state)}, nil
 	case "tab.new":
 		return rpcOpenTab(state, params)
 	case "tab.use":
@@ -259,11 +257,8 @@ func rpcOpen(state *AppState, params rpcParams, tab string) (any, error) {
 
 func rpcTabUse(state *AppState, params rpcParams) (any, error) {
 	target := firstNonEmptyString(stringParam(params, "tab"), stringParam(params, "target"))
-	sessionID, handle, _, err := ResolveSession(state, target)
+	_, handle, _, err := ResolveSession(state, target)
 	if err != nil {
-		return nil, err
-	}
-	if _, err := rpcExtCommand(state, map[string]any{"cmd": "tabs", "method": "switch", "tabId": parseTabID(sessionID)}, sessionID); err != nil {
 		return nil, err
 	}
 	return map[string]any{"tabId": handle}, nil

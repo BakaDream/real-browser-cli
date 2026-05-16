@@ -83,7 +83,7 @@ real-browser get text
 规则：
 
 - 先用 `doctor` 确认 daemon 和扩展连接状态。
-- 多 tab 时先 `tab list`，再 `tab use <tab>` 固定目标。
+- 多 tab 时先 `tab list`，再 `tab use <tab>` 设置默认目标；后续省略 `--tab` 的命令会作用于该 tab。
 - 操作元素前先 `snapshot`，优先使用 `@eN`。
 - `@eN` 失效、页面变化或目标找不到时，重新 `snapshot`。
 - 默认使用高层命令；只有高层命令无法表达时才使用 `eval` 或 `cdp`。
@@ -103,7 +103,7 @@ real-browser screenshot page.png
 
 ```bash
 real-browser plugin path --quiet
-real-browser tab active --quiet
+real-browser tab list --json
 ```
 
 `--json` 输出完整统一响应，适合机器解析。成功响应：
@@ -185,8 +185,6 @@ real-browser plugin path --quiet
 ```bash
 real-browser tab list
 real-browser tab list --json
-real-browser tab active
-real-browser tab active --quiet
 real-browser tab new
 real-browser tab new <url>
 real-browser tab new <url> --label <label>

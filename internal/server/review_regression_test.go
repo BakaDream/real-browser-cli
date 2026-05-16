@@ -58,6 +58,82 @@ func TestSetDefaultSessionRejectsUnknownTab(t *testing.T) {
 	}
 }
 
+func TestTabUseSetsDefaultTabMarker(t *testing.T) {
+	state := NewAppState("token")
+	state.Driver.Sessions["101"] = &protocol.Session{
+		Info: protocol.TabInfo{ID: "101", TabID: "t1", ChromeTabID: 101, Active: false, Scriptable: true},
+	}
+	state.Driver.Sessions["202"] = &protocol.Session{
+		Info: protocol.TabInfo{ID: "202", TabID: "t2", ChromeTabID: 202, Active: true, Scriptable: true},
+	}
+	state.Driver.TabHandles["101"] = "t1"
+	state.Driver.TabHandles["202"] = "t2"
+	state.Driver.HandleToSession["t1"] = "101"
+	state.Driver.HandleToSession["t2"] = "202"
+	state.Driver.DefaultSessionID = "202"
+	state.Driver.ActiveHandle = "t2"
+
+	resp, err := rpcTabUse(state, rpcParams{"tab": "t1"})
+	if err != nil {
+		t.Fatalf("tab use failed: %v", err)
+	}
+	m, _ := resp.(map[string]any)
+	if m["tabId"] != "t1" {
+		t.Fatalf("tab use response = %#v", resp)
+	}
+	if state.Driver.DefaultSessionID != "101" || state.Driver.ActiveHandle != "t1" {
+		t.Fatalf("default tab = %s/%s, want 101/t1", state.Driver.DefaultSessionID, state.Driver.ActiveHandle)
+	}
+
+	tabs := ActiveTabs(state, false)
+	active := map[string]bool{}
+	for _, tab := range tabs {
+		active[tab.ID] = tab.Active
+	}
+	if !active["t1"] || active["t2"] {
+		t.Fatalf("active markers = %#v, want only t1 active", active)
+	}
+}
+
+func TestTabUseMissingDoesNotChangeDefaultTab(t *testing.T) {
+	state := NewAppState("token")
+	state.Driver.Sessions["101"] = &protocol.Session{
+		Info: protocol.TabInfo{ID: "101", TabID: "t1", ChromeTabID: 101, Scriptable: true},
+	}
+	state.Driver.TabHandles["101"] = "t1"
+	state.Driver.HandleToSession["t1"] = "101"
+	state.Driver.DefaultSessionID = "101"
+	state.Driver.ActiveHandle = "t1"
+
+	if _, err := rpcTabUse(state, rpcParams{"tab": "missing"}); err == nil {
+		t.Fatal("expected missing tab error")
+	}
+	if state.Driver.DefaultSessionID != "101" || state.Driver.ActiveHandle != "t1" {
+		t.Fatalf("default tab changed to %s/%s", state.Driver.DefaultSessionID, state.Driver.ActiveHandle)
+	}
+}
+
+func TestRegisterTabsDoesNotOverrideExistingDefaultTab(t *testing.T) {
+	state := NewAppState("token")
+	registered := []string{"101", "202"}
+	sender := make(chan string, 1)
+	state.Driver.TabHandles["101"] = "t1"
+	state.Driver.TabHandles["202"] = "t2"
+	state.Driver.HandleToSession["t1"] = "101"
+	state.Driver.HandleToSession["t2"] = "202"
+	state.Driver.DefaultSessionID = "101"
+	state.Driver.ActiveHandle = "t1"
+
+	RegisterTabs(state, []protocol.ExtTab{
+		{ID: float64(101), URL: "https://example.com/a", Title: "A", Active: false, Scriptable: true},
+		{ID: float64(202), URL: "https://example.com/b", Title: "B", Active: true, Scriptable: true},
+	}, sender, &registered)
+
+	if state.Driver.DefaultSessionID != "101" || state.Driver.ActiveHandle != "t1" {
+		t.Fatalf("default tab changed to %s/%s", state.Driver.DefaultSessionID, state.Driver.ActiveHandle)
+	}
+}
+
 func TestWaitLoadScriptsAreDistinct(t *testing.T) {
 	loadScript := waitLoadScript("load")
 	if !strings.Contains(loadScript, "document.readyState === 'complete'") || strings.Contains(loadScript, "interactive") {

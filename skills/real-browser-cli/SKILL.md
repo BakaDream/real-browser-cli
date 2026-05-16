@@ -51,7 +51,7 @@ real-browser tab list
 
 - 默认使用 `t1`、`t2` 或 label。
 - 不要把真实 Chrome tab id 作为工作流的一部分。
-- 多 tab 无法推断目标时，先 `tab list`，再 `tab use <tab>`。
+- 多 tab 无法推断目标时，先 `tab list`，再 `tab use <tab>` 设置默认目标；后续省略 `--tab` 的命令会作用于该 tab。
 - 需要固定目标时，使用 label。
 
 ```bash
@@ -151,8 +151,6 @@ real-browser plugin path --json
 ```bash
 real-browser tab list
 real-browser tab list --json
-real-browser tab active
-real-browser tab active --quiet
 real-browser tab new
 real-browser tab new <url>
 real-browser tab new <url> --label <label>

@@ -287,5 +287,5 @@ real-browser get text
 - 默认使用 `t1`、`t2` 或 label，不使用真实 Chrome tab id。
 - 默认使用 `@e1`、`@e2` 等 snapshot ref。
 - 页面变化后重新执行 `real-browser snapshot`。
-- 多 tab 无法推断时，先 `real-browser tab list`，再 `real-browser tab use <tab>`。
+- 多 tab 无法推断时，先 `real-browser tab list`，再 `real-browser tab use <tab>` 设置默认目标；后续省略 `--tab` 的命令会作用于该 tab。
 - 只有高层命令无法表达时，才使用 `real-browser eval` 或 `real-browser cdp`。

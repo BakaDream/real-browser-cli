@@ -42,6 +42,7 @@ func TestGroupHelpShowsSubcommandDescriptions(t *testing.T) {
 	tab := executeHelp(t, "tab", "--help")
 	assertHelpContains(t, tab, "list", "List connected browser tabs")
 	assertHelpContains(t, tab, "new", "Open a new browser tab")
+	assertHelpOmitsCommand(t, tab, "active")
 
 	network := executeHelp(t, "network", "--help")
 	assertHelpContains(t, network, "list", "List captured network requests")
@@ -89,5 +90,15 @@ func TestDaemonPluginCommandRemoved(t *testing.T) {
 		if err := cmd.Execute(); err == nil {
 			t.Fatalf("expected %q to be unavailable", strings.Join(args, " "))
 		}
+	}
+}
+
+func TestTabActiveCommandRemoved(t *testing.T) {
+	cmd := newRoot()
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"tab", "active"})
+	if err := cmd.Execute(); err == nil {
+		t.Fatal("expected tab active to be unavailable")
 	}
 }
