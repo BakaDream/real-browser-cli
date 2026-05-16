@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+:root {
+  --bg: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-hover: #2a2d2e;
+  --border: #3c3c3c;
+  --border-light: #2a2a2a;
+  --text: #d4d4d4;
+  --text-dim: #808080;
+  --accent: #569cd6;
+  --accent-btn: #264f78;
+  --accent-btn-hover: #37699e;
+  --danger: #6c2020;
+  --danger-hover: #8b3030;
+  --flag: #d19a66;
+  --danger-text: #e06c75;
+  --success: #4CAF50;
+  --input-bg: #1e1e1e;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-hover: #e8e8e8;
+  --border: #d0d0d0;
+  --border-light: #e0e0e0;
+  --text: #333333;
+  --text-dim: #666666;
+  --accent: #0066cc;
+  --accent-btn: #0066cc;
+  --accent-btn-hover: #0052a3;
+  --danger: #d32f2f;
+  --danger-hover: #b71c1c;
+  --flag: #e65100;
+  --danger-text: #c62828;
+  --success: #2e7d32;
+  --input-bg: #ffffff;
+}
+body{width:420px;max-height:520px;margin:0;padding:0;font:12px monospace;background:var(--bg);color:var(--text);overflow-y:auto}
+.header{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--border);background:var(--bg-secondary)}
+.conn-status{display:flex;align-items:center;gap:5px;font:11px monospace}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim)}
+.conn-dot.connected{background:var(--success)}
+.theme-toggle{display:flex;gap:1px;background:var(--border);border-radius:3px;overflow:hidden}
+.theme-btn{background:var(--bg-secondary);border:none;color:var(--text-dim);cursor:pointer;padding:3px 6px;font-size:12px;line-height:1;transition:background .15s,color .15s}
+.theme-btn:hover{background:var(--bg-hover)}
+.theme-btn.active{background:var(--accent);color:#fff}
+.theme-btn svg{display:block;width:13px;height:13px}
+.content{padding:8px}
+h3{margin:0;color:var(--accent);flex-shrink:0}
+button{background:var(--accent-btn);color:#fff;border:none;padding:4px 10px;cursor:pointer;border-radius:3px;font:11px monospace}
+button:hover{background:var(--accent-btn-hover)}
+button.danger{background:var(--danger)}
+button.danger:hover{background:var(--danger-hover)}
+button.sm{padding:2px 6px;font:10px monospace}
+input,select{background:var(--input-bg);border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:3px;font:11px monospace}
+input[type="number"]{width:100%;box-sizing:border-box}
+label{color:var(--text-dim);font:11px monospace}
+table{width:100%;border-collapse:collapse;font:11px monospace}
+th{text-align:left;padding:3px 4px;background:var(--bg-secondary);position:sticky;top:0;color:var(--accent);border-bottom:1px solid var(--border)}
+td{padding:3px 4px;border-bottom:1px solid var(--border-light);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:hover{background:var(--bg-hover)}
+.flag{color:var(--flag);font-size:10px}
+.act-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:1px 3px;font:11px monospace}
+.act-btn:hover{color:var(--text)}
+.act-btn.del:hover{color:var(--danger-text)}
+.frow{margin-bottom:5px}
+.frow label{display:block;margin-bottom:2px}
+.frow input[type="text"],.frow input[type="number"],.frow select{width:100%;box-sizing:border-box}
+.fchecks{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:5px}
+.fchecks label{display:flex;align-items:center;gap:3px;color:var(--text);cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="conn-status">
+    <div class="conn-dot" id="connDot"></div>
+    <span id="connLabel">Disconnected</span>
+  </div>
+  <div class="theme-toggle">
+    <button class="theme-btn" data-theme="light" title="Light Mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <button class="theme-btn" data-theme="system" title="Follow System">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    </button>
+    <button class="theme-btn" data-theme="dark" title="Dark Mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</div>
+<div class="content">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+  <h3>Cookies</h3>
+  <input id="filter" placeholder="filter..." style="flex:1">
+  <button id="refresh">Refresh</button>
+</div>
+<div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap">
+  <button id="addBtn">+ Add</button>
+  <button id="exportJson">JSON</button>
+  <button id="exportTxt">TXT</button>
+  <button id="importBtn">Import</button>
+  <button id="deleteAll" class="danger">Delete All</button>
+</div>
+<div id="cookieTable" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:3px">
+  <table>
+    <thead>
+      <tr><th style="width:90px">Name</th><th style="width:110px">Value</th><th style="width:90px">Domain</th><th style="width:50px">Flags</th><th style="width:50px">Act</th></tr>
+    </thead>
+    <tbody id="cookieBody"></tbody>
+  </table>
+</div>
+<div id="cookieForm" style="display:none;background:var(--bg-secondary);padding:8px;border-radius:3px;margin-top:6px">
+  <div class="frow"><label>Name</label><input id="fName" type="text" placeholder="cookie_name"></div>
+  <div class="frow"><label>Value</label><input id="fValue" type="text" placeholder="cookie_value"></div>
+  <div class="frow"><label>Domain</label><input id="fDomain" type="text" placeholder=".example.com"></div>
+  <div class="frow"><label>Path</label><input id="fPath" type="text" value="/"></div>
+  <div class="fchecks">
+    <label><input type="checkbox" id="fSecure"> Secure</label>
+    <label><input type="checkbox" id="fHttpOnly"> HttpOnly</label>
+    <label>SameSite: <select id="fSameSite"><option value="lax">Lax</option><option value="strict">Strict</option><option value="no_restriction">None</option><option value="unspecified">Unspecified</option></select></label>
+  </div>
+  <div class="frow"><label>Expires (Unix timestamp, 0 = session)</label><input id="fExpires" type="number" value="0" min="0"></div>
+  <div style="display:flex;gap:4px;margin-top:6px">
+    <button id="formSave">Save</button>
+    <button id="formCancel">Cancel</button>
+  </div>
+</div>
+<input type="file" id="importFile" accept=".json" style="display:none">
+<div id="status" style="margin-top:5px;font:10px monospace;color:var(--text-dim)"></div>
+</div>
+<script src="popup.js"></script>
+</body>
+</html>

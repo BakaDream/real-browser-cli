@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Real Browser Plugin",
+  "version": "2.0",
+  "description": "Real Browser CLI browser bridge",
+  "permissions": [
+    "cookies",
+    "tabs",
+    "activeTab",
+    "debugger",
+    "scripting",
+    "alarms",
+    "declarativeNetRequest",
+    "management",
+    "contentSettings"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["config.js", "content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Real Browser Plugin"
+  }
+}

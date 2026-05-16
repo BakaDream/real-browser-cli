@@ -1,0 +1,42 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build release assets
+        env:
+          CGO_ENABLED: "0"
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          build_date="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          ldflags="-s -w -X github.com/bakadream/real-browser-cli/internal/version.Version=${GITHUB_REF_NAME} -X github.com/bakadream/real-browser-cli/internal/version.Commit=${GITHUB_SHA} -X github.com/bakadream/real-browser-cli/internal/version.Date=${build_date}"
+
+          GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "${ldflags}" -o dist/real-browser-darwin-arm64 ./cmd/real-browser
+          GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags "${ldflags}" -o dist/real-browser-darwin-amd64 ./cmd/real-browser
+          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "${ldflags}" -o dist/real-browser-linux-amd64 ./cmd/real-browser
+          GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "${ldflags}" -o dist/real-browser-linux-arm64 ./cmd/real-browser
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "${ldflags}" -o dist/real-browser-windows-amd64.exe ./cmd/real-browser
+
+          cd dist
+          sha256sum real-browser-* > checksums.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
