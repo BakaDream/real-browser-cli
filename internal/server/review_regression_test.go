@@ -215,6 +215,36 @@ func TestBatchItemAcceptsCLIStyleCommand(t *testing.T) {
 	}
 }
 
+func TestResolveElementTargetUsesSnapshotCSSLocator(t *testing.T) {
+	state := NewAppState("token")
+	state.Refs["e1"] = ElementRef{
+		Ref:      "e1",
+		Locators: map[string]any{"css": "#name"},
+	}
+
+	got, err := resolveElementTarget(state, "@e1")
+	if err != nil {
+		t.Fatalf("resolve target failed: %v", err)
+	}
+	if got != "#name" {
+		t.Fatalf("target = %q, want #name", got)
+	}
+}
+
+func TestResolveElementTargetRejectsRefWithoutCSSLocator(t *testing.T) {
+	state := NewAppState("token")
+	state.Refs["e1"] = ElementRef{Ref: "e1", Locators: map[string]any{"role": "textbox"}}
+
+	_, err := resolveElementTarget(state, "@e1")
+	if err == nil {
+		t.Fatal("expected missing CSS locator error")
+	}
+	codeErr, ok := err.(rpcCodeError)
+	if !ok || codeErr.Code != "target_not_found" {
+		t.Fatalf("error = %#v, want target_not_found", err)
+	}
+}
+
 func TestResolvePendingDialogOpenCompletesPendingExec(t *testing.T) {
 	state := NewAppState("token")
 	pending := &protocol.PendingExec{Ch: make(chan protocol.ExecOutcome, 1)}

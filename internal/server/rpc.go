@@ -398,6 +398,13 @@ func rpcAction(state *AppState, command string, params rpcParams, tab string) (a
 	if action == "type" || action == "press" || action == "scroll" {
 		target = ""
 	}
+	if target != "" && strings.HasPrefix(strings.TrimSpace(target), "@") {
+		resolved, err := resolveElementTarget(state, target)
+		if err != nil {
+			return nil, err
+		}
+		target = resolved
+	}
 	if (action == "click" || action == "dblclick" || action == "hover" || action == "drag") && target != "" {
 		if box, ok, err := actionTargetBox(state, target, tab); err != nil {
 			return nil, err
@@ -451,6 +458,17 @@ func actionTargetBox(state *AppState, target string, tab string) (Rect, bool, er
 		return Rect{}, false, rpcCodeError{Code: "target_not_found", Message: "target not found: " + target}
 	}
 	return box, true, nil
+}
+
+func resolveElementTarget(state *AppState, target string) (string, error) {
+	ref, ok := resolveElementRef(state, target)
+	if !ok || ref.Locators == nil {
+		return "", rpcCodeError{Code: "target_not_found", Message: "ref has no locator: " + target}
+	}
+	if css, _ := ref.Locators["css"].(string); css != "" {
+		return css, nil
+	}
+	return "", rpcCodeError{Code: "target_not_found", Message: "ref has no CSS locator: " + target}
 }
 
 func rpcWait(state *AppState, params rpcParams, tab string) (any, error) {
