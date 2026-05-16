@@ -1,6 +1,6 @@
 # AI 安装与验证指南
 
-本文档供 AI agent 在用户机器上安装、配置和验证 `real-browser-cli`。默认安装 GitHub latest release，并把二进制放到用户目录下的 `~/.real-agent-cli/bin`。
+本文档供 AI agent 在用户机器上安装、配置和验证 `real-browser-cli`。默认安装 GitHub latest release，并把二进制放到用户目录下的 `~/.real-browser-cli/bin`。
 
 重要规则：
 
@@ -128,12 +128,12 @@ if ($Actual -ne $Expected.ToLower()) {
 }
 ```
 
-## 5. 安装到 ~/.real-agent-cli/bin
+## 5. 安装到 ~/.real-browser-cli/bin
 
 ### macOS / Linux
 
 ```bash
-INSTALL_DIR="$HOME/.real-agent-cli/bin"
+INSTALL_DIR="$HOME/.real-browser-cli/bin"
 mkdir -p "$INSTALL_DIR"
 install -m 0755 "$TMP_DIR/$ASSET" "$INSTALL_DIR/real-browser"
 ```
@@ -141,7 +141,7 @@ install -m 0755 "$TMP_DIR/$ASSET" "$INSTALL_DIR/real-browser"
 ### Windows PowerShell
 
 ```powershell
-$InstallDir = Join-Path $env:USERPROFILE ".real-agent-cli\bin"
+$InstallDir = Join-Path $env:USERPROFILE ".real-browser-cli\bin"
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 Copy-Item $BinPath (Join-Path $InstallDir "real-browser.exe") -Force
 ```
@@ -151,8 +151,8 @@ Copy-Item $BinPath (Join-Path $InstallDir "real-browser.exe") -Force
 ### zsh
 
 ```bash
-INSTALL_DIR="$HOME/.real-agent-cli/bin"
-LINE='export PATH="$HOME/.real-agent-cli/bin:$PATH"'
+INSTALL_DIR="${HOME}/.real-browser-cli/bin"
+LINE="export PATH=\"${INSTALL_DIR}:\$PATH\""
 touch "$HOME/.zshrc"
 grep -F "$LINE" "$HOME/.zshrc" >/dev/null 2>&1 || printf '\n%s\n' "$LINE" >> "$HOME/.zshrc"
 ```
@@ -160,8 +160,8 @@ grep -F "$LINE" "$HOME/.zshrc" >/dev/null 2>&1 || printf '\n%s\n' "$LINE" >> "$H
 ### bash
 
 ```bash
-INSTALL_DIR="$HOME/.real-agent-cli/bin"
-LINE='export PATH="$HOME/.real-agent-cli/bin:$PATH"'
+INSTALL_DIR="${HOME}/.real-browser-cli/bin"
+LINE="export PATH=\"${INSTALL_DIR}:\$PATH\""
 touch "$HOME/.bashrc"
 grep -F "$LINE" "$HOME/.bashrc" >/dev/null 2>&1 || printf '\n%s\n' "$LINE" >> "$HOME/.bashrc"
 ```
@@ -169,7 +169,7 @@ grep -F "$LINE" "$HOME/.bashrc" >/dev/null 2>&1 || printf '\n%s\n' "$LINE" >> "$
 ### Windows PowerShell
 
 ```powershell
-$InstallDir = Join-Path $env:USERPROFILE ".real-agent-cli\bin"
+$InstallDir = Join-Path $env:USERPROFILE ".real-browser-cli\bin"
 $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if (($UserPath -split ";") -notcontains $InstallDir) {
   [Environment]::SetEnvironmentVariable("Path", "$UserPath;$InstallDir", "User")
@@ -197,7 +197,7 @@ real-browser version
 如果不确定用户使用 zsh 还是 bash，当前会话可以先临时刷新：
 
 ```bash
-export PATH="$HOME/.real-agent-cli/bin:$PATH"
+export PATH="${HOME}/.real-browser-cli/bin:$PATH"
 real-browser version
 ```
 
